@@ -1,0 +1,12 @@
+{
+  "name": "sort",
+  "module": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "sort": "node ./sort.js"
+  },
+  "dependencies": {
+    "assert": "^2.1.0"
+  }
+}
