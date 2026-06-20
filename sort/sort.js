@@ -1,7 +1,7 @@
 import assert from "assert";
 
 /**
- * Creates a new object with the changed sort. the oritinal obj will be untouched.
+ * Creates a new object with the changed sort. the original obj will be untouched.
  * @public
  * @method sort
  * @param {string} the key in the object to re sort
@@ -9,7 +9,7 @@ import assert from "assert";
  * @param {string} object to reorder
  * @returns {object} updated sort object
  * @throws {Error} new ordinal out of range
- * @throws {Error} new orderinal is negative
+ * @throws {Error} new ordinal is negative
  */
 function sort(propName, newOrdinal, obj) {
   if (newOrdinal > Object.keys(obj).length) {
@@ -21,41 +21,44 @@ function sort(propName, newOrdinal, obj) {
     throw new Error("Ordinal cannot be negative");
   }
 
-  const newObj = {};
   const propertyNames = Object.getOwnPropertyNames(obj);
+
+  const newObj = {};
+  let inserted = false;
+  let writeIndex = 0;
+
   for (let i = 0; i < propertyNames.length; ++i) {
     const prop = propertyNames[i];
-    if (i === newOrdinal) {
-      if (i !== 0) {
-        Object.defineProperty(newObj, prop, {
-          value: obj[prop],
-          writable: true,
-          enumerable: true,
-        });
-        // newObj[prop] = obj[prop]; // we need to push this on first;
-      }
+    if (prop === propName) {
+      continue;
+    }
+
+    if (!inserted && writeIndex === newOrdinal) {
       Object.defineProperty(newObj, propName, {
         value: obj[propName],
-        writable: true,
         enumerable: true,
-      });
-      // newObj[propName] = obj[propName];
-      if (i === 0) {
-        Object.defineProperty(newObj, prop, {
-          value: obj[prop],
-          writable: true,
-          enumerable: true,
-        });
-        // newObj[prop] = obj[prop]; // we need to make sure this gets pushed after
-      }
-    } else if (prop !== propName) {
-      Object.defineProperty(newObj, prop, {
-        value: obj[prop],
         writable: true,
-        enumerable: true,
       });
-      // newObj[prop] = obj[prop];
+
+      inserted = true;
+      ++writeIndex;
     }
+
+    Object.defineProperty(newObj, prop, {
+      value: obj[prop],
+      enumerable: true,
+      writable: true,
+    });
+
+    ++writeIndex;
+  }
+
+  if (!inserted) {
+    Object.defineProperty(newObj, propName, {
+      value: obj[propName],
+      enumerable: true,
+      writable: true,
+    });
   }
 
   return newObj;
@@ -214,7 +217,7 @@ function test_object_should_not_reorder_one_property() {
   );
 }
 
-function test_should_not_reorder_non_existant_proprty() {
+function test_should_not_reorder_non_existent_proprty() {
   // arrange
   const obj = {
     a: "first",
@@ -241,6 +244,27 @@ function test_should_not_reorder_non_existant_proprty() {
   );
 }
 
+function test_should_reorder_last_option_when_there_are_three() {
+  // arrange
+  const obj = {
+    a: "first",
+    b: "second",
+    c: "third",
+  };
+
+  // act
+  const newObj = sort("c", 1, obj);
+
+  assert(
+    JSON.stringify(newObj) ===
+      JSON.stringify({
+        a: "first",
+        c: "third",
+        b: "second",
+      }),
+  );
+}
+
 /**
  * Calls a function and console logs pass or fail
  * @param {(function(): void|Promise<void>)} func  function to call
@@ -250,9 +274,9 @@ function assertWrapper(func) {
   const funcName = func.prototype.constructor.name;
   try {
     func();
-    console.log(`${funcName} passed ✅`);
+    console.log(`✅ ${funcName} passed`);
   } catch (err) {
-    console.log(`${funcName} failed ❌`);
+    console.log(`❌ ${funcName} failed`);
   }
 }
 
@@ -268,7 +292,8 @@ function test_func() {
     test_object_will_reorder_last_to_first,
     test_object_will_reorder_first_to_last,
     test_object_should_not_reorder_one_property,
-    test_should_not_reorder_non_existant_proprty,
+    test_should_not_reorder_non_existent_proprty,
+    test_should_reorder_last_option_when_there_are_three,
   ];
 
   for (const test of testArr) {
