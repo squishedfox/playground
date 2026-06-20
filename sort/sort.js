@@ -21,20 +21,40 @@ function sort(propName, newOrdinal, obj) {
     throw new Error("Ordinal cannot be negative");
   }
 
-  let newObj = {};
+  const newObj = {};
   const propertyNames = Object.getOwnPropertyNames(obj);
   for (let i = 0; i < propertyNames.length; ++i) {
     const prop = propertyNames[i];
     if (i === newOrdinal) {
       if (i !== 0) {
-        newObj[prop] = obj[prop]; // we need to push this on first;
+        Object.defineProperty(newObj, prop, {
+          value: obj[prop],
+          writable: true,
+          enumerable: true,
+        });
+        // newObj[prop] = obj[prop]; // we need to push this on first;
       }
-      newObj[propName] = obj[propName];
+      Object.defineProperty(newObj, propName, {
+        value: obj[propName],
+        writable: true,
+        enumerable: true,
+      });
+      // newObj[propName] = obj[propName];
       if (i === 0) {
-        newObj[prop] = obj[prop]; // we need to make sure this gets pushed after
+        Object.defineProperty(newObj, prop, {
+          value: obj[prop],
+          writable: true,
+          enumerable: true,
+        });
+        // newObj[prop] = obj[prop]; // we need to make sure this gets pushed after
       }
     } else if (prop !== propName) {
-      newObj[prop] = obj[prop];
+      Object.defineProperty(newObj, prop, {
+        value: obj[prop],
+        writable: true,
+        enumerable: true,
+      });
+      // newObj[prop] = obj[prop];
     }
   }
 
