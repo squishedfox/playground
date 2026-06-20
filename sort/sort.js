@@ -221,12 +221,37 @@ function test_should_not_reorder_non_existant_proprty() {
   );
 }
 
+/**
+ * Calls a function and console logs pass or fail
+ * @param {(function(): void|Promise<void>)} func  function to call
+ * @returns {void}
+ */
+function assertWrapper(func) {
+  const funcName = func.prototype.constructor.name;
+  try {
+    func();
+    console.log(`${funcName} passed ✅`);
+  } catch (err) {
+    console.log(`${funcName} failed ❌`);
+  }
+}
+
+function test_func() {
+  console.log("hello world");
+}
+
 (function () {
-  test_object_will_reorder_second_item_to_fourth_item();
-  test_object_will_reorder_first_item_to_second_item();
-  test_object_will_reorder_second_item_to_first_item();
-  test_object_will_reorder_last_to_first();
-  test_object_will_reorder_first_to_last();
-  test_object_should_not_reorder_one_property();
-  test_should_not_reorder_non_existant_proprty();
+  const testArr = [
+    test_object_will_reorder_second_item_to_fourth_item,
+    test_object_will_reorder_first_item_to_second_item,
+    test_object_will_reorder_second_item_to_first_item,
+    test_object_will_reorder_last_to_first,
+    test_object_will_reorder_first_to_last,
+    test_object_should_not_reorder_one_property,
+    test_should_not_reorder_non_existant_proprty,
+  ];
+
+  for (const test of testArr) {
+    assertWrapper(test);
+  }
 })();
